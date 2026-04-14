@@ -5,36 +5,7 @@ spring:
   application:
     name: system-service
   profiles:
-    active: local
-
----
-spring:
-  config:
-    activate:
-      on-profile: local
-  datasource:
-    url: jdbc:h2:mem:system;MODE=MySQL;DB_CLOSE_DELAY=-1;DATABASE_TO_LOWER=TRUE
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
-  sql:
-    init:
-      mode: always
-      schema-locations: classpath:schema.sql
-  h2:
-    console:
-      enabled: true
-  cloud:
-    nacos:
-      config:
-        enabled: false
-      discovery:
-        enabled: false
-
-app:
-  jwt:
-    secret: "dev-secret-dev-secret-dev-secret-32bytes!"
-    expire-ms: 3600000
+    active: nacos
 
 ---
 spring:
