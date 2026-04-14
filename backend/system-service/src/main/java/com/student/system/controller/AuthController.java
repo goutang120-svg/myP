@@ -30,14 +30,26 @@ public class AuthController {
 
     @PostMapping("/register")
     public ApiResponse<Void> register(@RequestBody @Valid RegisterRequest request) {
-        SysUser exists = userMapper.selectOne(new LambdaQueryWrapper<SysUser>()
+        SysUser existsByUsername = userMapper.selectOne(new LambdaQueryWrapper<SysUser>()
                 .eq(SysUser::getUsername, request.getUsername()));
-        if (exists != null) {
+        if (existsByUsername != null) {
             return ApiResponse.fail(400, "用户名已存在");
+        }
+        SysUser existsByPhone = userMapper.selectOne(new LambdaQueryWrapper<SysUser>()
+                .eq(SysUser::getPhone, request.getPhone()));
+        if (existsByPhone != null) {
+            return ApiResponse.fail(400, "手机号已存在");
+        }
+        SysUser existsByEmail = userMapper.selectOne(new LambdaQueryWrapper<SysUser>()
+                .eq(SysUser::getEmail, request.getEmail()));
+        if (existsByEmail != null) {
+            return ApiResponse.fail(400, "邮箱已存在");
         }
         SysUser user = new SysUser();
         user.setUsername(request.getUsername());
         user.setPassword(md5(request.getPassword()));
+        user.setPhone(request.getPhone());
+        user.setEmail(request.getEmail());
         user.setRole("STUDENT");
         userMapper.insert(user);
         return ApiResponse.success("注册成功", null);

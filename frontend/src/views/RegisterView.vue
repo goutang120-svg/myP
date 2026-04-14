@@ -7,53 +7,130 @@
     <el-card class="login-card">
       <div class="login-title-wrap">
         <div class="logo-badge">SM</div>
-        <h2 class="login-title">学生管理系统</h2>
-        <p class="login-subtitle">Student Management Platform</p>
+        <h2 class="login-title">创建账号</h2>
+        <p class="login-subtitle">注册后即可登录使用</p>
       </div>
-      <el-form :model="form" label-width="0" class="login-form">
-        <el-form-item>
+
+      <el-form ref="formRef" :model="form" :rules="rules" label-width="0" class="login-form">
+        <el-form-item prop="username">
           <div class="field-label">用户名</div>
           <el-input v-model="form.username" placeholder="请输入用户名" size="large" />
         </el-form-item>
-        <el-form-item>
+
+        <el-form-item prop="phone">
+          <div class="field-label">手机号</div>
+          <el-input v-model="form.phone" placeholder="请输入手机号" size="large" maxlength="11" />
+        </el-form-item>
+
+        <el-form-item prop="email">
+          <div class="field-label">邮箱</div>
+          <el-input v-model="form.email" placeholder="请输入邮箱" size="large" />
+        </el-form-item>
+
+        <el-form-item prop="password">
           <div class="field-label">密码</div>
           <el-input v-model="form.password" type="password" show-password placeholder="请输入密码" size="large" />
         </el-form-item>
+
+        <el-form-item prop="confirmPassword">
+          <div class="field-label">确认密码</div>
+          <el-input
+            v-model="form.confirmPassword"
+            type="password"
+            show-password
+            placeholder="请再次输入密码"
+            size="large"
+          />
+        </el-form-item>
+
         <el-form-item>
           <div class="login-actions">
-            <el-button type="primary" class="btn-login" @click="login">登录</el-button>
-            <el-button class="btn-register" @click="register">注册</el-button>
+            <el-button class="btn-register" @click="goLogin">返回登录</el-button>
+            <el-button type="primary" class="btn-login" :loading="submitting" @click="submit">注册</el-button>
           </div>
         </el-form-item>
       </el-form>
-      <div class="login-footer-tip">首次使用可先注册账号</div>
     </el-card>
   </div>
 </template>
 
 <script setup>
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
 import http from '../api/http'
 
 const router = useRouter()
-const form = reactive({ username: '', password: '' })
+const formRef = ref()
+const submitting = ref(false)
 
-const login = async () => {
-  const { data } = await http.post('/system/auth/login', form)
-  if (data.code === 200 && data.data) {
-    localStorage.setItem('token', data.data.token)
-    localStorage.setItem('username', data.data.username)
-    ElMessage.success(data.msg || '登录成功')
-    await router.push('/dashboard')
-  } else {
-    ElMessage.error(data.msg || '登录失败')
-  }
+const form = reactive({
+  username: '',
+  phone: '',
+  email: '',
+  password: '',
+  confirmPassword: ''
+})
+
+const rules = {
+  username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
+  phone: [
+    { required: true, message: '请输入手机号', trigger: 'blur' },
+    { pattern: /^1\d{10}$/, message: '手机号格式不正确', trigger: 'blur' }
+  ],
+  email: [
+    { required: true, message: '请输入邮箱', trigger: 'blur' },
+    { type: 'email', message: '邮箱格式不正确', trigger: 'blur' }
+  ],
+  password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
+  confirmPassword: [
+    { required: true, message: '请再次输入密码', trigger: 'blur' },
+    {
+      validator: (rule, value, callback) => {
+        if (value !== form.password) callback(new Error('两次输入的密码不一致'))
+        else callback()
+      },
+      trigger: 'blur'
+    }
+  ]
 }
 
-const register = async () => {
-  await router.push('/register')
+const goLogin = async () => {
+  await router.push('/login')
+}
+
+const submit = async () => {
+  try {
+    await formRef.value?.validate()
+  } catch (e) {
+    // 表单校验不通过时，Element Plus 会阻止提交
+    return
+  }
+
+  submitting.value = true
+  try {
+    const payload = {
+      username: form.username,
+      password: form.password,
+      phone: form.phone,
+      email: form.email
+    }
+    const { data } = await http.post('/system/auth/register', payload)
+    if (data && data.code === 200) {
+      ElMessage.success(data.msg || '注册成功')
+      await router.push('/login')
+      return
+    }
+    ElMessage.error((data && data.msg) || '注册失败')
+  } catch (e) {
+    const msg =
+      e?.response?.data?.msg ||
+      e?.message ||
+      '注册请求失败（请检查后端是否启动、前端是否配置了 /api 代理）'
+    ElMessage.error(msg)
+  } finally {
+    submitting.value = false
+  }
 }
 </script>
 
@@ -175,12 +252,5 @@ const register = async () => {
 .btn-register {
   border-color: #cbd5e1;
   color: #334155;
-}
-
-.login-footer-tip {
-  text-align: center;
-  margin-top: 2px;
-  font-size: 12px;
-  color: #64748b;
 }
 </style>

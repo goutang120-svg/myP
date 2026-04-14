@@ -1,0 +1,15 @@
+server:
+  port: 8081
+
+spring:
+  datasource:
+    # 生产/测试建议改用 MySQL，并通过环境变量注入
+    url: ${SYSTEM_DB_URL:jdbc:mysql://127.0.0.1:3306/student_mage_system?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false}
+    username: ${SYSTEM_DB_USERNAME:root}
+    password: ${SYSTEM_DB_PASSWORD:root}
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:change-me-please-32bytes-min}
+    expire-ms: ${JWT_EXPIRE_MS:3600000}
+

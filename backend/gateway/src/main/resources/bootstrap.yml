@@ -2,17 +2,27 @@ spring:
   application:
     name: gateway
   config:
-    import: "optional:nacos:"
+    import: "optional:nacos:${spring.application.name}.yaml"
+
 
   cloud:
     nacos:
-      server-addr: 62.234.1.152:8848
+      server-addr: ${NACOS_ADDR:62.234.1.152:8848}
+      username: ${NACOS_USERNAME:}
+      password: ${NACOS_PASSWORD:}
 
       discovery:
-        namespace: b66c93ce-3c83-4edd-a789-e3f47335c127
+        namespace: ${NACOS_NAMESPACE:b66c93ce-3c83-4edd-a789-e3f47335c127}
+        group: ${NACOS_GROUP:DEFAULT_GROUP}
 
       config:
         import-check:
           enabled: false
-        namespace: b66c93ce-3c83-4edd-a789-e3f47335c127
+        namespace: ${NACOS_NAMESPACE:b66c93ce-3c83-4edd-a789-e3f47335c127}
+        group: ${NACOS_GROUP:DEFAULT_GROUP}
         file-extension: yaml
+        refresh-enabled: true
+        shared-configs:
+          - data-id: common.yaml
+            group: ${NACOS_GROUP:DEFAULT_GROUP}
+            refresh: true

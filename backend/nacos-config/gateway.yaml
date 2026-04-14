@@ -1,0 +1,20 @@
+server:
+  port: 8080
+
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: system-service
+          uri: lb://system-service
+          predicates:
+            - Path=/system/**
+          filters:
+            - StripPrefix=1
+        - id: biz-service
+          uri: lb://biz-service
+          predicates:
+            - Path=/biz/**
+          filters:
+            - StripPrefix=1
+

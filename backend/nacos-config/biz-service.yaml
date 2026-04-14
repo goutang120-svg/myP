@@ -1,0 +1,9 @@
+server:
+  port: 8082
+
+spring:
+  datasource:
+    url: ${BIZ_DB_URL:jdbc:mysql://127.0.0.1:3306/student_mage_biz?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false}
+    username: ${BIZ_DB_USERNAME:root}
+    password: ${BIZ_DB_PASSWORD:root}
+
