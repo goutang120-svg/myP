@@ -6,13 +6,13 @@ spring:
 
   cloud:
     nacos:
-      server-addr: 62.234.1.152:8848
+      server-addr: ${NACOS_SERVER_ADDR:127.0.0.1:8848}
 
       discovery:
-        namespace: b66c93ce-3c83-4edd-a789-e3f47335c127
+        namespace: ${NACOS_NAMESPACE:public}
 
       config:
         import-check:
           enabled: false
-        namespace: b66c93ce-3c83-4edd-a789-e3f47335c127
+        namespace: ${NACOS_NAMESPACE:public}
         file-extension: yaml
