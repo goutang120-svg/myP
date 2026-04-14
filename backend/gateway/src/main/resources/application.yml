@@ -1,0 +1,37 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: gateway
+  profiles:
+    active: local
+
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+  cloud:
+    nacos:
+      config:
+        enabled: false
+      discovery:
+        enabled: false
+
+---
+spring:
+  config:
+    activate:
+      on-profile: nacos
+    import: "nacos:${spring.application.name}.yaml"
+  cloud:
+    nacos:
+      server-addr: 62.234.1.152:8848
+      discovery:
+        namespace: b66c93ce-3c83-4edd-a789-e3f47335c127
+      config:
+        import-check:
+          enabled: false
+        namespace: b66c93ce-3c83-4edd-a789-e3f47335c127
+        file-extension: yaml
